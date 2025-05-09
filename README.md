@@ -14,6 +14,6 @@ function, code1, hexcode1, code2, hexcode2
 * Port 1 - **farthest from Ethernet RJ46**
 * Port 3 - used for IR  blaster **adjacent to RJ45**
 * IR transmitter signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%2520IR.png)
-* Blaster signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20blaster.png)
+* Blaster signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)
 ## Amazon Store
 https://www.amazon.com/stores/Global+Cach%C3%A9/page/9B16D5C3-4BA1-4A4E-8331-C4AF232F1FD6?lp_asin=B003BFTKUC&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
