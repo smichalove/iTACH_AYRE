@@ -15,5 +15,7 @@ function, code1, hexcode1, code2, hexcode2
 * Port 3 - used for IR  blaster **adjacent to RJ45**
 * IR transmitter signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)
 * Blaster signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)
+* Input IR path on [v-1x](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf) found on page 7
+
 ## Amazon Store
 https://www.amazon.com/stores/Global+Cach%C3%A9/page/9B16D5C3-4BA1-4A4E-8331-C4AF232F1FD6?lp_asin=B003BFTKUC&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
