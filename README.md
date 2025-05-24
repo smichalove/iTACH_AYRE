@@ -187,7 +187,7 @@ Contributing
 Feel free to fork this repository, open issues, or submit pull requests if you have improvements or bug fixes.
 
 License
-[Specify your license here, e.g., MIT, Apache 2.0, etc.]
+**None**
 
 
 # A note about iTACH ports
