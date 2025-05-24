@@ -187,7 +187,7 @@ Contributing
 Feel free to fork this repository, open issues, or submit pull requests if you have improvements or bug fixes.
 
 License
-**None**
+**[GNU](https://www.gnu.org/licenses/lgpl-3.0.md)**
 
 
 # A note about iTACH ports
