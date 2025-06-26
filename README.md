@@ -206,3 +206,6 @@ https://www.anthemav.com/products-current/type=av-processor/model=avm-70-8k/page
 
 ## Ayre Accoustics
 https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf
+
+## ITACH GLOBAL CACHE IR CODE DATABASE
+https://irdb.globalcache.com/Home/Database
