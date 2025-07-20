@@ -19,24 +19,25 @@ import socket
 import sys
 import time
 import os
+from typing import Optional
 
 # --- Configuration ---
-HOST = "192.168.86.126"  # IP address of your Global Cache iTach device
-PORT = 4998              # Default command port for iTach devices
-TIMEOUT = 5              # Connection timeout in seconds
-BUFFER_SIZE = 1024       # Buffer for receiving data
-STATE_FILE = "power_sensor_state.txt" # File to store the sensor's last state
+HOST: str = "192.168.86.121"  # IP address of your Global Cache iTach device
+PORT: int = 4998              # Default command port for iTach devices
+TIMEOUT: int = 5              # Connection timeout in seconds
+BUFFER_SIZE: int = 1024       # Buffer for receiving data
+STATE_FILE: str = "power_sensor_state.txt" # File to store the sensor's last state
 
 # --- iTach Command Definitions ---
 # This IR command should be the 'power toggle' for your AV device.
-POWER_TOGGLE_COMMAND = "sendir,1:1,1,36000,1,1,32,32,64,64,64,32,32,32,32,32,32,32,32,32,32,64,32,32,64,32,32,2487"
-
+POWER_TOGGLE_COMMAND: str = "sendir,1:1,1,36000,1,1,32,32,64,64,64,32,32,32,32,32,32,32,32,32,32,64,32,32,64,32,32,2487"
+POWER_TOGGLE_COMMAND: str = "sendir,1:1,1,36000,1,1,32,32,64,64,64,32,32,32,32,32,32,32,32,32,32,64,32,32,64,32,32,2487"
 # Command to get the power state from the sensor on module 1, port 2
-GET_SENSOR_STATE_COMMAND = "getstate,1:2"
+GET_SENSOR_STATE_COMMAND: str = "getstate,1:2"
 
 # --- State Management Functions ---
 
-def get_last_sensor_state():
+def get_last_sensor_state() -> str:
     """
     Reads the last known sensor state from the state file.
 
@@ -57,7 +58,7 @@ def get_last_sensor_state():
         print(f"!!! ERROR reading state file: {e}", file=sys.stderr)
         return '0'
 
-def set_sensor_state(state):
+def set_sensor_state(state: str) -> None:
     """
     Writes the sensor's current state to the state file.
 
@@ -77,7 +78,7 @@ def set_sensor_state(state):
 
 # --- Network & Command Functions ---
 
-def send_command(sock, command, command_name="command"):
+def send_command(sock: socket.socket, command: str, command_name: str = "command") -> Optional[str]:
     """
     Sends a command to the iTach device and returns the response.
 
@@ -111,7 +112,7 @@ def send_command(sock, command, command_name="command"):
 
 # --- Main Logic ---
 
-def monitor_sensor_and_toggle_on_change():
+def monitor_sensor_and_toggle_on_change() -> None:
     """
     Checks the power sensor and triggers IR commands on a state transition.
 
@@ -123,22 +124,22 @@ def monitor_sensor_and_toggle_on_change():
        command to both IR ports and updates the state file with the new state.
     5. If they are the same, it does nothing.
     """
-    last_state = get_last_sensor_state()
+    last_state: str = get_last_sensor_state()
     print(f"\nWaiting for sensor state to change from: {last_state} ({'ON' if last_state == '1' else 'OFF'})")
 
-    s = None
+    s: Optional[socket.socket] = None
     try:
         s = socket.create_connection((HOST, PORT), timeout=TIMEOUT)
 
         # 1. Get the current power sensor state from port 2
-        response = send_command(s, GET_SENSOR_STATE_COMMAND, "GET_SENSOR_STATE")
+        response: Optional[str] = send_command(s, GET_SENSOR_STATE_COMMAND, "GET_SENSOR_STATE")
 
         if not response or not response.startswith('state,1:2,'):
             print("!!! Could not get valid sensor state. Skipping this cycle.")
             return
 
         # The response is "state,1:2,X", so we get the last character ('0' or '1').
-        current_state = response[-1]
+        current_state: str = response[-1]
 
         # 2. Check if a state transition has occurred.
         if current_state != last_state:
