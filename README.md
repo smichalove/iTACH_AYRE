@@ -101,6 +101,20 @@ This will run the script in the background and redirect its output to a file nam
   * **Ayre V-1xe Manual:** [PDF Link](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf)  
   * **Global Cache IR Database:** [irdb.globalcache.com](https://irdb.globalcache.com/Home/Database)  
   * **Amazon Store:** [Global Caché](https://www.google.com/search?q=https://www.amazon.com/stores/Global%2BCach%25C3%25A9/page/9B16D5C3-4BA1-4A4E-8331-C4AF232F1FD6)
+## *Hardware Used*
+* *Global Caché IP2IR iTach TCP/IP to IR Converter*
+
+Connects Infrared Control Devices to a Wired Ethernet.
+
+https://www.amazon.com/Global-Cache-IP2IR-iTach-Wired/dp/B003BFTKUC
+
+* *Global Caché IP2CC-P iTach TCP/IP to Contact Closure Converter With Power Over Ethernet.*
+
+https://www.amazon.com/Global-Cache-Contact-Closure-IP2CC-P/dp/B002ZV8FVI
+
+* *iTACH Voltage Sensor*
+
+https://www.homecontrols.com/Global-Cache-iTach-Voltage-Sensor-Cable-GCITSP1
 
 # **A note about iTACH ports**
 
