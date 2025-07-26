@@ -2,7 +2,7 @@
 
 # **iTach Power-State Monitor and Controller**
 
-This repository contains a Python script that monitors a sensor on a Global Cache iTach device and triggers actions on a state change. It's designed to integrate devices that lack modern control inputs (like 12V triggers) by using a sensor's state (e.g., ON/OFF) to control other equipment via a separate iTach IP2CC relay and iTach IR commands.
+This repository contains a Python (powerd.py)  script that monitors a sensor on a Global Cache iTach device and triggers actions on a state change. It's designed to integrate devices that lack modern control inputs (like 12V triggers) by using a sensor's state (e.g., ON/OFF) to control other equipment via a separate iTach IP2CC relay and iTach IR commands.
 
 The original use case was to power-toggle an Ayre V-1x amplifier, which does not have a 12V trigger input.
 
