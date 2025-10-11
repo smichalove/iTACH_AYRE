@@ -25,6 +25,7 @@ All actions and errors are logged to /home/steve/logfile.txt.
 import socket
 import sys
 import time
+import struct
 import logging
 from pathlib import Path
 from typing import Optional
@@ -37,8 +38,13 @@ TIMEOUT: int = 5               # Connection timeout in seconds
 BUFFER_SIZE: int = 1024        # Buffer for receiving data
 # Use pathlib for robust cross-platform path handling
 # NOTE: Path updated to /home/steven/ as requested.
-STATE_FILE: Path = Path("/home/steven/power_sensor_state.txt")  # TODO: Update this to your value
-LOG_FILE: Path = Path("/home/steven/logfile.txt") # TODO: Update this to your value
+STATE_FILE: Path = Path("/home/steven/power_sensor_state.txt")
+LOG_FILE: Path = Path("/home/steven/logfile.txt")
+
+# --- Wake-on-LAN Configuration ---
+# MAC address of the PC to wake up.
+WOL_MAC_ADDRESS: str = "24-4B-FE-CC-05-D6"
+WOL_BROADCAST_ADDRESS: str = "192.168.86.255"
 
 # --- iTach Command Definitions ---
 POWER_TOGGLE_COMMAND: str = "sendir,1:1,1,36000,1,1,32,32,64,64,64,32,32,32,32,32,32,32,32,32,32,64,32,32,64,32,32,2487"
@@ -92,6 +98,7 @@ def pulse_ip2cc_relay() -> None:
     Connects to the IP2CC and sends a momentary 250ms pulse to relay 1.
     This function establishes a new connection, sends the commands to
     close and then open the relay, and then closes the connection.
+    This is needed to be compatiple with the mark levinson 331
     """
     logging.info("Pulsing relay on IP2CC...")
     ip2cc_sock: Optional[socket.socket] = None
@@ -117,6 +124,33 @@ def pulse_ip2cc_relay() -> None:
     finally:
         if ip2cc_sock:
             ip2cc_sock.close()
+
+def wake_on_lan(mac_address: str, broadcast_address: str) -> None:
+    """
+    Sends a Wake-on-LAN magic packet to the specified MAC address.
+
+    Args:
+        mac_address (str): The MAC address of the target computer.
+        broadcast_address (str): The broadcast address of the network.
+    """
+    logging.info(f"Attempting to wake PC with MAC: {mac_address}")
+    try:
+        # Remove any separators from the MAC address and convert to bytes
+        mac_bytes = bytes.fromhex(mac_address.replace(':', '').replace('-', ''))
+
+        # The magic packet is 6 bytes of FF followed by 16 repetitions of the MAC address
+        magic_packet = b'\xff' * 6 + mac_bytes * 16
+
+        # Create a UDP socket
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            # Enable broadcasting mode
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            # Send the magic packet to the broadcast address on port 9
+            sock.sendto(magic_packet, (broadcast_address, 9))
+            logging.info(f"Wake-on-LAN magic packet sent to {mac_address} via {broadcast_address}")
+    except Exception as e:
+        logging.error(f"Failed to send Wake-on-LAN packet: {e}")
+
 
 # --- Main Logic ---
 
@@ -154,33 +188,36 @@ def monitor_sensor_and_toggle_on_change(first_power_on_check: bool) -> bool:
             # --- BRANCH 1: Transition from OFF to ON ---
             if last_state == '0' and current_state == '1':
                 logging.info("*** DETECTED TRANSITION: OFF -> ON. Triggering actions. ***")
-                
+
+                # Always pulse the relay first to turn on the amplifier.
+                pulse_ip2cc_relay()
+
                 # Special handling for the very first power-on event
                 if first_power_on_check:
-                    pulse_ip2cc_relay()  # First pulse to turn on the amplifier
+                    # On the first run, also wake up the PC.
+                    wake_on_lan(WOL_MAC_ADDRESS, WOL_BROADCAST_ADDRESS)
+
                     logging.info("First power-on detected. Waiting for amplifier boot (12s)...")
                     time.sleep(12)
                     # Flip the flag so this special delay block doesn't run again.
                     first_power_on_check = False
 
-                # Main sequence for turning ON (runs on first boot after delay, and all subsequent boots)
+                # Main sequence for turning ON (runs after the initial pulse and optional delay)
                 send_command(s, POWER_TOGGLE_COMMAND.replace("sendir,1:1", "sendir,1:1"), "POWER_TOGGLE_PORT_1")
                 time.sleep(1)
                 send_command(s, POWER_TOGGLE_COMMAND.replace("sendir,1:1", "sendir,1:3"), "POWER_TOGGLE_PORT_3")
-                time.sleep(1)
-                pulse_ip2cc_relay() # Second pulse (e.g., to select input or finalize power on)
 
             # --- BRANCH 2: Transition from ON to OFF ---
             elif last_state == '1' and current_state == '0':
                 logging.info("*** DETECTED TRANSITION: ON -> OFF. Triggering actions. ***")
                 
-                # For powering off, we pulse the amplifier relay first, then send IR commands.
-                pulse_ip2cc_relay()
-                time.sleep(1) # Brief pause
+                # For powering off, send IR commands first, then pulse the amplifier relay last.
                 send_command(s, POWER_TOGGLE_COMMAND.replace("sendir,1:1", "sendir,1:1"), "POWER_TOGGLE_PORT_1")
                 time.sleep(1)
                 send_command(s, POWER_TOGGLE_COMMAND.replace("sendir,1:1", "sendir,1:3"), "POWER_TOGGLE_PORT_3")
-                
+                time.sleep(1) # Brief pause before turning off amp
+                pulse_ip2cc_relay()
+
             # After either transition, persist the new state.
             set_sensor_state(current_state)
         else:
