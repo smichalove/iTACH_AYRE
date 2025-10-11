@@ -11,15 +11,22 @@ sys.path.insert(0, '/home/steven')
 import powerd
 
 class TestPowerd(unittest.TestCase):
+    """
+    Test suite for the powerd.py script.
+
+    This class contains unit tests for the state management, network communication,
+    and main logic functions within the powerd.py script. It uses mocking
+    extensively to isolate functions and simulate hardware responses.
+    """
 
     def setUp(self):
-        """Set up for each test. Mocks logging to prevent console output during tests."""
+        """Prepare for each test by mocking the logging module."""
         # Patch logging to avoid cluttering test output and check log messages
         self.patcher = patch('powerd.logging')
         self.mock_logging = self.patcher.start()
 
     def tearDown(self):
-        """Clean up after each test."""
+        """Clean up after each test by stopping the patcher."""
         self.patcher.stop()
 
     # --- Test State Management Functions ---
@@ -33,7 +40,7 @@ class TestPowerd(unittest.TestCase):
     @patch('powerd.STATE_FILE.exists', return_value=True)
     @patch('powerd.STATE_FILE.read_text', return_value='1\n ')
     def test_get_last_sensor_state_file_exists(self, mock_read_text, mock_exists):
-        """Test get_last_sensor_state when the state file exists and has content."""
+        """Test get_last_sensor_state reads correctly when the file exists."""
         self.assertEqual(powerd.get_last_sensor_state(), '1')
         mock_exists.assert_called_once()
         mock_read_text.assert_called_once()
@@ -41,20 +48,20 @@ class TestPowerd(unittest.TestCase):
     @patch('powerd.STATE_FILE.exists', return_value=True)
     @patch('powerd.STATE_FILE.read_text', side_effect=IOError("Can't read"))
     def test_get_last_sensor_state_read_error(self, mock_read_text, mock_exists):
-        """Test get_last_sensor_state when reading the file causes an error."""
+        """Test get_last_sensor_state defaults to '0' on a file read error."""
         self.assertEqual(powerd.get_last_sensor_state(), '0')
         self.mock_logging.error.assert_called_with("Error reading state file: Can't read")
 
     @patch('powerd.STATE_FILE.write_text')
     def test_set_sensor_state_success(self, mock_write_text):
-        """Test set_sensor_state successfully writes the state."""
+        """Test set_sensor_state successfully writes the new state to a file."""
         powerd.set_sensor_state('1')
         mock_write_text.assert_called_once_with('1')
         self.mock_logging.info.assert_called_with("State change recorded. New baseline state is: 1")
 
     @patch('powerd.STATE_FILE.write_text', side_effect=IOError("Can't write"))
     def test_set_sensor_state_write_error(self, mock_write_text):
-        """Test set_sensor_state when writing to the file causes an error."""
+        """Test set_sensor_state logs an error when a file write fails."""
         powerd.set_sensor_state('0')
         mock_write_text.assert_called_once_with('0')
         self.mock_logging.error.assert_called_with("Error writing to state file: Can't write")
@@ -62,7 +69,7 @@ class TestPowerd(unittest.TestCase):
     # --- Test Network & Command Functions ---
 
     def test_send_command_success(self):
-        """Test send_command with a successful response."""
+        """Test send_command sends data and returns a decoded response."""
         mock_sock = MagicMock()
         mock_sock.recv.return_value = b'complete,1:1\r'
         response = powerd.send_command(mock_sock, "getstate,1:1", "TEST_CMD")
@@ -72,7 +79,7 @@ class TestPowerd(unittest.TestCase):
         self.mock_logging.info.assert_any_call("Sending TEST_CMD: getstate,1:1")
 
     def test_send_command_timeout(self):
-        """Test send_command when a socket timeout occurs."""
+        """Test send_command returns None and logs a warning on socket timeout."""
         mock_sock = MagicMock()
         mock_sock.sendall.side_effect = socket.timeout
         response = powerd.send_command(mock_sock, "getstate,1:1", "TEST_CMD")
@@ -84,7 +91,7 @@ class TestPowerd(unittest.TestCase):
     @patch('powerd.send_command')
     @patch('time.sleep')
     def test_pulse_ip2cc_relay(self, mock_sleep, mock_send_command, mock_create_connection):
-        """Test the pulse_ip2cc_relay function sequence."""
+        """Test pulse_ip2cc_relay sends close/open commands in sequence."""
         mock_sock = MagicMock()
         mock_create_connection.return_value = mock_sock
 
@@ -105,7 +112,7 @@ class TestPowerd(unittest.TestCase):
 
     @patch('socket.socket')
     def test_wake_on_lan(self, mock_socket_constructor):
-        """Test the wake_on_lan function."""
+        """Test wake_on_lan constructs and sends a correct magic packet."""
         mock_sock_instance = MagicMock()
         # Make the socket constructor return our mock instance
         mock_socket_constructor.return_value.__enter__.return_value = mock_sock_instance
@@ -135,7 +142,12 @@ class TestPowerd(unittest.TestCase):
     @patch('powerd.get_last_sensor_state', return_value='0')
     @patch('time.sleep')
     def test_monitor_off_to_on_first_time(self, mock_sleep, mock_get_last_state, mock_create_conn, mock_send_cmd, mock_wol, mock_pulse, mock_set_state):
-        """Test OFF -> ON transition on the first power-on event."""
+        """
+        Test the OFF-to-ON transition for the first power-on event.
+
+        Verifies that the sequence includes a relay pulse, a WoL packet, a special
+        delay, and then the IR commands, finally setting the new state.
+        """
         mock_sock = MagicMock()
         mock_create_conn.return_value = mock_sock
         # Simulate the device reporting state '1' (ON)
@@ -181,7 +193,11 @@ class TestPowerd(unittest.TestCase):
     @patch('powerd.get_last_sensor_state', return_value='0')
     @patch('time.sleep')
     def test_monitor_off_to_on_subsequent(self, mock_sleep, mock_get_last_state, mock_create_conn, mock_send_cmd, mock_wol, mock_pulse, mock_set_state):
-        """Test OFF -> ON transition on a subsequent (not first) power-on event."""
+        """
+        Test the OFF-to-ON transition for a subsequent power-on event.
+
+        Verifies that the special delay and Wake-on-LAN are skipped.
+        """
         mock_sock = MagicMock()
         mock_create_conn.return_value = mock_sock
         mock_send_cmd.side_effect = ['state,1:2,1', 'complete', 'complete']
@@ -219,7 +235,11 @@ class TestPowerd(unittest.TestCase):
     @patch('powerd.get_last_sensor_state', return_value='1')
     @patch('time.sleep')
     def test_monitor_on_to_off(self, mock_sleep, mock_get_last_state, mock_create_conn, mock_send_cmd, mock_wol, mock_pulse, mock_set_state):
-        """Test ON -> OFF transition."""
+        """
+        Test the ON-to-OFF transition.
+
+        Verifies that the sequence sends IR commands first, then pulses the relay.
+        """
         mock_sock = MagicMock()
         mock_create_conn.return_value = mock_sock
         mock_send_cmd.side_effect = ['state,1:2,0', 'complete', 'complete']
@@ -266,7 +286,7 @@ class TestPowerd(unittest.TestCase):
     @patch('socket.create_connection')
     @patch('powerd.get_last_sensor_state', return_value='1')
     def test_monitor_no_change(self, mock_get_last_state, mock_create_conn, mock_send_cmd, mock_pulse, mock_set_state):
-        """Test scenario where sensor state does not change."""
+        """Test that no actions are taken when the sensor state does not change."""
         mock_sock = MagicMock()
         mock_create_conn.return_value = mock_sock
         # Simulate the device reporting the same state '1' (ON)
