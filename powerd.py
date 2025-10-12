@@ -188,24 +188,24 @@ def monitor_sensor_and_toggle_on_change(first_power_on_check: bool) -> bool:
             # --- BRANCH 1: Transition from OFF to ON ---
             if last_state == '0' and current_state == '1':
                 logging.info("*** DETECTED TRANSITION: OFF -> ON. Triggering actions. ***")
-
-                # Always pulse the relay first to turn on the amplifier.
+                
+                # Per amplifier manual: First pulse brings amp from OFF to STANDBY.
+                logging.info("Sending first pulse (OFF -> STANDBY)...")
                 pulse_ip2cc_relay()
 
-                # Special handling for the very first power-on event
-                if first_power_on_check:
-                    # On the first run, also wake up the PC.
-                    wake_on_lan(WOL_MAC_ADDRESS, WOL_BROADCAST_ADDRESS)
+                # Per manual: Wait for power supply to charge.
+                logging.info("Waiting for amplifier power supply to charge (12s)...")
+                time.sleep(12)
 
-                    logging.info("First power-on detected. Waiting for amplifier boot (12s)...")
-                    time.sleep(12)
-                    # Flip the flag so this special delay block doesn't run again.
+                # Special handling for the very first power-on event during this script's run.
+                if first_power_on_check:
+                    logging.info("First power-on: Waking up PC.")
+                    wake_on_lan(WOL_MAC_ADDRESS, WOL_BROADCAST_ADDRESS)
                     first_power_on_check = False
 
-                # Main sequence for turning ON (runs after the initial pulse and optional delay)
-                send_command(s, POWER_TOGGLE_COMMAND.replace("sendir,1:1", "sendir,1:1"), "POWER_TOGGLE_PORT_1")
-                time.sleep(1)
-                send_command(s, POWER_TOGGLE_COMMAND.replace("sendir,1:1", "sendir,1:3"), "POWER_TOGGLE_PORT_3")
+                # Per manual: Second pulse brings amp from STANDBY to OPERATE.
+                logging.info("Sending second pulse (STANDBY -> OPERATE)...")
+                pulse_ip2cc_relay()
 
             # --- BRANCH 2: Transition from ON to OFF ---
             elif last_state == '1' and current_state == '0':
