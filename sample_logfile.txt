@@ -1,0 +1,175 @@
+2025-10-11 14:19:58,513 - INFO - --- Script starting up ---
+2025-10-11 14:19:58,513 - INFO - Waiting for sensor state to change from: 0 (OFF)
+2025-10-11 14:19:58,556 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:19:58,560 - INFO - Received response: state,1:2,0
+2025-10-11 14:19:58,560 - INFO - Sensor state remains 0. No action needed.
+2025-10-11 14:19:58,560 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:20:13,560 - INFO - Waiting for sensor state to change from: 0 (OFF)
+2025-10-11 14:20:13,573 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:20:13,576 - INFO - Received response: state,1:2,0
+2025-10-11 14:20:13,576 - INFO - Sensor state remains 0. No action needed.
+2025-10-11 14:20:13,577 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:20:28,578 - INFO - Waiting for sensor state to change from: 0 (OFF)
+2025-10-11 14:20:28,590 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:20:28,593 - INFO - Received response: state,1:2,1
+2025-10-11 14:20:28,593 - INFO - *** DETECTED TRANSITION: OFF -> ON. Triggering actions. ***
+2025-10-11 14:20:28,593 - INFO - Pulsing relay on IP2CC...
+2025-10-11 14:20:28,610 - INFO - Sending IP2CC_RELAY_CLOSE: setstate,1:1,1
+2025-10-11 14:20:28,613 - INFO - Received response: setstate,1:1,1
+2025-10-11 14:20:28,964 - INFO - Sending IP2CC_RELAY_OPEN: setstate,1:1,0
+2025-10-11 14:20:28,967 - INFO - Received response: setstate,1:1,0
+2025-10-11 14:20:31,217 - INFO - IP2CC relay pulse complete.
+2025-10-11 14:20:31,218 - INFO - Attempting to wake PC with MAC: 24-4B-FE-CC-05-D6
+2025-10-11 14:20:31,218 - INFO - Wake-on-LAN magic packet sent to 24-4B-FE-CC-05-D6 via 192.168.86.255
+2025-10-11 14:20:31,219 - INFO - First power-on detected. Waiting for amplifier boot (12s)...
+2025-10-11 14:20:43,219 - INFO - Sending POWER_TOGGLE_PORT_1: sendir,1:1,1,36000,1,1,32,32,64,64,64,32,32,32,32,32,32,32,32,32,32,64,32,32,64,32,32,2487
+2025-10-11 14:20:43,351 - INFO - Received response: completeir,1:1,1
+2025-10-11 14:20:44,352 - INFO - Sending POWER_TOGGLE_PORT_3: sendir,1:3,1,36000,1,1,32,32,64,64,64,32,32,32,32,32,32,32,32,32,32,64,32,32,64,32,32,2487
+2025-10-11 14:20:44,484 - INFO - Received response: completeir,1:3,1
+2025-10-11 14:20:44,485 - INFO - State change recorded. New baseline state is: 1
+2025-10-11 14:20:44,485 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:20:59,486 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:20:59,510 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:20:59,513 - INFO - Received response: state,1:2,1
+2025-10-11 14:20:59,514 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:20:59,514 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:21:14,515 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:21:14,532 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:21:14,536 - INFO - Received response: state,1:2,1
+2025-10-11 14:21:14,536 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:21:14,536 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:21:29,537 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:21:29,556 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:21:29,560 - INFO - Received response: state,1:2,1
+2025-10-11 14:21:29,560 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:21:29,560 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:21:44,561 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:21:44,576 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:21:44,579 - INFO - Received response: state,1:2,1
+2025-10-11 14:21:44,579 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:21:44,579 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:21:59,580 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:21:59,605 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:21:59,609 - INFO - Received response: state,1:2,1
+2025-10-11 14:21:59,609 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:21:59,609 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:22:14,610 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:22:14,621 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:22:14,624 - INFO - Received response: state,1:2,1
+2025-10-11 14:22:14,624 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:22:14,624 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:22:29,625 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:22:29,643 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:22:29,647 - INFO - Received response: state,1:2,1
+2025-10-11 14:22:29,647 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:22:29,647 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:22:44,648 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:22:44,668 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:22:44,671 - INFO - Received response: state,1:2,1
+2025-10-11 14:22:44,671 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:22:44,671 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:22:59,672 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:22:59,686 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:22:59,690 - INFO - Received response: state,1:2,1
+2025-10-11 14:22:59,690 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:22:59,690 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:23:14,691 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:23:14,710 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:23:14,714 - INFO - Received response: state,1:2,1
+2025-10-11 14:23:14,714 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:23:14,714 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:23:29,715 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:23:29,734 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:23:29,738 - INFO - Received response: state,1:2,1
+2025-10-11 14:23:29,738 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:23:29,738 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:23:44,739 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:23:44,758 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:23:44,761 - INFO - Received response: state,1:2,1
+2025-10-11 14:23:44,762 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:23:44,762 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:23:59,763 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:23:59,783 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:23:59,787 - INFO - Received response: state,1:2,1
+2025-10-11 14:23:59,787 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:23:59,787 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:24:14,788 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:24:14,807 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:24:14,810 - INFO - Received response: state,1:2,1
+2025-10-11 14:24:14,810 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:24:14,811 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:24:29,811 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:24:29,823 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:24:29,827 - INFO - Received response: state,1:2,1
+2025-10-11 14:24:29,827 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:24:29,828 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:24:44,828 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:24:44,839 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:24:44,843 - INFO - Received response: state,1:2,1
+2025-10-11 14:24:44,843 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:24:44,843 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:24:59,844 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:24:59,862 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:24:59,866 - INFO - Received response: state,1:2,1
+2025-10-11 14:24:59,866 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:24:59,866 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:25:14,867 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:25:14,890 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:25:14,894 - INFO - Received response: state,1:2,1
+2025-10-11 14:25:14,894 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:25:14,894 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:25:29,896 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:25:29,913 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:25:29,917 - INFO - Received response: state,1:2,1
+2025-10-11 14:25:29,917 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:25:29,917 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:25:44,918 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:25:44,928 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:25:44,932 - INFO - Received response: state,1:2,1
+2025-10-11 14:25:44,932 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:25:44,932 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:25:59,933 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:25:59,954 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:25:59,958 - INFO - Received response: state,1:2,1
+2025-10-11 14:25:59,958 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:25:59,958 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:26:14,959 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:26:14,982 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:26:14,986 - INFO - Received response: state,1:2,1
+2025-10-11 14:26:14,986 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:26:14,986 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:26:29,987 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:26:30,005 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:26:30,008 - INFO - Received response: state,1:2,1
+2025-10-11 14:26:30,008 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:26:30,009 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:26:45,009 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:26:45,024 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:26:45,027 - INFO - Received response: state,1:2,1
+2025-10-11 14:26:45,027 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:26:45,028 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:27:00,029 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:27:00,054 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:27:00,058 - INFO - Received response: state,1:2,1
+2025-10-11 14:27:00,058 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:27:00,058 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:27:15,059 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:27:15,073 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:27:15,077 - INFO - Received response: state,1:2,1
+2025-10-11 14:27:15,077 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:27:15,077 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:27:30,078 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:27:30,097 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:27:30,101 - INFO - Received response: state,1:2,1
+2025-10-11 14:27:30,101 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:27:30,101 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:27:45,102 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:27:45,114 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:27:45,117 - INFO - Received response: state,1:2,1
+2025-10-11 14:27:45,117 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:27:45,118 - INFO - --- Waiting for 15 seconds before next check ---
+2025-10-11 14:28:00,119 - INFO - Waiting for sensor state to change from: 1 (ON)
+2025-10-11 14:28:00,133 - INFO - Sending GET_SENSOR_STATE: getstate,1:2
+2025-10-11 14:28:00,136 - INFO - Received response: state,1:2,1
+2025-10-11 14:28:00,136 - INFO - Sensor state remains 1. No action needed.
+2025-10-11 14:28:00,137 - INFO - --- Waiting for 15 seconds before next check ---

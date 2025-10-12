@@ -1,10 +1,21 @@
-
-
-# **iTach Power-State Monitor and Controller**
+# iTach Power-State Monitor and Controller
 
 This repository contains a Python (powerd.py)  script that monitors a sensor on a Global Cache iTach device and triggers actions on a state change. It's designed to integrate devices that lack modern control inputs (like 12V triggers) by using a sensor's state (e.g., ON/OFF) to control other equipment via a separate iTach IP2CC relay and iTach IR commands.
 
 The original use case was to power-toggle an Ayre V-1x amplifier, which does not have a 12V trigger input.
+
+---
+
+## Table of Contents
+
+- [How It Works](#how-it-works)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation & Configuration](#installation--configuration)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
+- [Hardware](#hardware)
+- [iTach Port Information](#itach-port-information)
 
 ## **How It Works**
 
@@ -61,15 +72,15 @@ This approach leads to more robust, reliable, and maintainable code, which is es
 ---
 
 ## **Installation & Configuration**
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository_url>
+    cd <repository_directory>
+    ```
+2.  **No external libraries are needed.** The script uses only standard Python libraries.
+3.  **Configure the Script:**
+    All configuration is done by editing the constants at the top of the `powerd.py` script. You must set the correct values for your environment.
 
-1. Clone the repository:  
-   Bash  
-   git clone \<repository\_url\>  
-   cd \<repository\_directory\>
-
-2. **No external libraries are needed.** The script uses only standard Python libraries.  
-3. Configure the Script:  
-   All configuration is done by editing the constants at the top of the Python script. You must set the correct values for your environment.  
    * IP2CC: The IP address of your iTach IP2CC (for relay control).  
    * HOST: The IP address of your primary iTach (for sensor and IR).  
    * STATE\_FILE: The full path to the file where the script will store the sensor's state (e.g., Path("d:/python/power\_sensor\_state.txt")). The script will attempt to create the directory if it doesn't exist.  
@@ -81,15 +92,15 @@ This approach leads to more robust, reliable, and maintainable code, which is es
 
 To run the script continuously, execute it from your terminal:
 
-Bash
-
-python your\_script\_name.py
+```bash
+python powerd.py
+```
 
 To run it as a background process on Linux or macOS, you can use nohup:
 
-Bash
-
-nohup python your\_script\_name.py &
+```bash
+nohup python powerd.py &
+```
 
 This will run the script in the background and redirect its output to a file named nohup.out.
 
@@ -120,6 +131,7 @@ This will run the script in the background and redirect its output to a file nam
   * **iTACH Voltage Sensor:** A compatible sensor for detecting state changes.  
 * **Links:**  
   * **Ayre V-1xe Manual:** [PDF Link](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf)  
+  * **Mark Levinson 331 Manual:** [PDF](./n_331.pdf)
   * **Global Cache IR Database:** [irdb.globalcache.com](https://irdb.globalcache.com/Home/Database)  
   * **Amazon Store:** [Global Caché](https://www.google.com/search?q=https://www.amazon.com/stores/Global%2BCach%25C3%25A9/page/9B16D5C3-4BA1-4A4E-8331-C4AF232F1FD6)
 ## *Hardware Used*
