@@ -29,6 +29,27 @@ The script operates in a continuous loop with the following logic:
 
 ---
 
+### **A Note on Code Quality: Strict Typing**
+
+This script is written using modern Python features, including **strict type hints**.
+
+*   **What is Strict Typing?**
+    Type hinting is a feature that allows developers to annotate variables, function arguments, and return values with their expected data types. For example, in `powerd.py`:
+    *   `HOST: str = "..."` declares that the `HOST` variable is a string.
+    *   `def get_last_sensor_state() -> str:` declares that the `get_last_sensor_state` function is expected to return a string.
+    *   `def set_sensor_state(state: str) -> None:` declares that `set_sensor_state` accepts a string argument and returns nothing (`None`).
+    *   `s: Optional[socket.socket] = None` uses the `Optional` type to indicate that the `s` variable can either be a `socket.socket` object or `None`.
+
+*   **Why is it Used in `powerd.py`?**
+    While Python is a dynamically typed language (meaning it doesn't enforce these types when the script runs), using type hints provides several major benefits:
+    1.  **Improved Readability & Clarity:** It makes the code self-documenting. Anyone reading the code can immediately understand what kind of data a function expects and what it will return.
+    2.  **Error Prevention:** It allows static analysis tools (like `mypy`) and modern code editors (like VS Code) to detect potential bugs *before* you run the script. For example, the editor can warn you if you accidentally try to pass a number to a function that expects a string.
+    3.  **Easier Maintenance:** When returning to the code months later, the type hints make it much faster and safer to understand and modify the script's logic without introducing new errors.
+
+This approach leads to more robust, reliable, and maintainable code, which is especially important for a long-running service like this power daemon.
+
+---
+
 ## **Requirements**
 
 * Python 3.7+  
@@ -124,4 +145,3 @@ https://www.homecontrols.com/Global-Cache-iTach-Voltage-Sensor-Cable-GCITSP1
 * IR transmitter signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)  
 * Blaster signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)  
 * Input IR path on [v-1x](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf) found on page 7
-
