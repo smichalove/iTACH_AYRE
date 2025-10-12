@@ -110,6 +110,7 @@ This will run the script in the background and redirect its output to a file nam
   * **iTACH Voltage Sensor:** A compatible sensor for detecting state changes.  
 * **Links:**  
   * **Ayre V-1xe Manual:** [PDF Link](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf)  
+  * **Mark Levinson 331 Manual:** [PDF](./n_331.pdf)
   * **Global Cache IR Database:** [irdb.globalcache.com](https://irdb.globalcache.com/Home/Database)  
   * **Amazon Store:** [Global Caché](https://www.google.com/search?q=https://www.amazon.com/stores/Global%2BCach%25C3%25A9/page/9B16D5C3-4BA1-4A4E-8331-C4AF232F1FD6)
 ## *Hardware Used*
