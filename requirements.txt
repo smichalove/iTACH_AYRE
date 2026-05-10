@@ -1,1 +1,3 @@
 python-kasa
+zipp>=3.19.1
+anyio>=4.4.0
