@@ -28,20 +28,28 @@ import sys
 import time
 import struct
 import logging
+import asyncio
+import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
+from kasa import Discover, Credentials
 
 # --- Configuration ---
-IP2CC: str = "192.168.86.105"  # IP of iTach IP2CC (for relay)
-HOST: str = "192.168.86.121"   # IP of iTach (for sensor and IR)
+IP2CC: str = "192.168.8.128"  # IP of iTach IP2CC (for relay)
+HOST: str = "192.168.8.125"   # IP of iTach (for sensor and IR)
 PORT: int = 4998               # Default command port for iTach devices
 TIMEOUT: int = 5               # Connection timeout in seconds
 BUFFER_SIZE: int = 1024        # Buffer for receiving data
 
+# Kasa Configuration
+KASA_DEVICE_IP: str = "192.168.8.36" # Default: Music room fans
+KASA_EMAIL: str = os.getenv("KASA_EMAIL")
+# Pull passwords from environment variable (set in .powerd_secrets)
+KASA_PASSWORDS: List[str] = os.getenv("KASA_PASSWORDS", "").split(",")
+
 # Use pathlib for robust cross-platform path handling
-# NOTE: Path updated to /home/steven/ as requested.
-STATE_FILE: Path = Path("/home/steven/power_sensor_state.txt")
-LOG_FILE: Path = Path("/home/steven/logfile.txt")
+STATE_FILE: Path = Path.home() / "power_sensor_state.txt"
+LOG_FILE: Path = Path.home() / "logfile.txt"
 
 # --- Wake-on-LAN Configuration ---
 # MAC address of the PC to wake up.
@@ -180,6 +188,43 @@ def wake_online(mac: Optional[str] = None, broadcast: Optional[str] = None) -> N
         logging.error(f"wake_online failed: {e}")
 
 
+async def _set_kasa_state_async(ip: str, turn_on: bool) -> None:
+    """
+    Internal asynchronous function to set the state of a Kasa device.
+    Cycles through known passwords to ensure connection.
+    """
+    for pwd in KASA_PASSWORDS:
+        try:
+            credentials = Credentials(KASA_EMAIL, pwd)
+            dev = await Discover.discover_single(ip, credentials=credentials)
+            await dev.update()
+            
+            if turn_on:
+                await dev.turn_on()
+                logging.info(f"Kasa device {dev.alias} ({ip}) turned ON.")
+            else:
+                await dev.turn_off()
+                logging.info(f"Kasa device {dev.alias} ({ip}) turned OFF.")
+            return # Success
+        except Exception:
+            continue # Try next password
+    logging.error(f"Kasa: Could not authenticate with {ip} using any known passwords.")
+
+def set_kasa_state(ip: str, turn_on: bool) -> None:
+    """
+    Synchronous wrapper to set Kasa device state.
+    
+    Args:
+        ip: The IP address of the Kasa device.
+        turn_on: True to turn the device ON, False to turn it OFF.
+    """
+    try:
+        # Bridge sync to async
+        asyncio.run(_set_kasa_state_async(ip, turn_on))
+    except Exception as e:
+        logging.error(f"Failed to execute Kasa command for {ip}: {e}")
+
+
 # --- Main Logic ---
 
 def monitor_sensor_and_toggle_on_change() -> None:
@@ -221,6 +266,10 @@ def monitor_sensor_and_toggle_on_change() -> None:
                 logging.info("Pulsing relay on IP2CC...")
                 pulse_ip2cc_relay()
 
+                # 3. Trigger Kasa device
+                logging.info(f"Triggering Kasa device at {KASA_DEVICE_IP} to ON...")
+                set_kasa_state(KASA_DEVICE_IP, turn_on=True)
+
                 # Also wake a configured PC on the LAN using Wake-on-LAN
                 try:
                     logging.info("Waking configured PC via Wake-on-LAN...")
@@ -246,6 +295,10 @@ def monitor_sensor_and_toggle_on_change() -> None:
 
                     # Brief pause before turning off amp
                     pulse_ip2cc_relay()
+
+                    # 3. Trigger Kasa device
+                    logging.info(f"Triggering Kasa device at {KASA_DEVICE_IP} to OFF...")
+                    set_kasa_state(KASA_DEVICE_IP, turn_on=False)
                 except Exception:
                     logging.exception("Error during IR command sequence")
                 
@@ -274,13 +327,12 @@ if __name__ == "__main__":
     try:
         LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
         STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        # Configure logging to write to a file and to the console.
+        # Configure logging to write to the console (which cron redirects to the log file).
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler(LOG_FILE, mode='a'), # Append to the log file
-                logging.StreamHandler(sys.stdout)       # Also output to console
+                logging.StreamHandler(sys.stdout)       # Output to console/pipe
             ]
         )
     except OSError as e:

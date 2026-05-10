@@ -1,8 +1,6 @@
-# iTach Power-State Monitor and Controller
+# iTACH_AYRE Power Daemon
 
-This repository contains a Python (powerd.py)  script that monitors a sensor on a Global Cache iTach device and triggers actions on a state change. It's designed to integrate devices that lack modern control inputs (like 12V triggers) by using a sensor's state (e.g., ON/OFF) to control other equipment via a separate iTach IP2CC relay and iTach IR commands.
-
-The original use case was to power-toggle an Ayre V-1x amplifier, which does not have a 12V trigger input.
+Monitors a power sensor on a Global Cache iTach device and orchestrates complex power-on/off sequences involving IR commands, relay pulses, Wake-on-LAN, and Kasa Smart Home devices.
 
 ---
 
@@ -11,149 +9,138 @@ The original use case was to power-toggle an Ayre V-1x amplifier, which does not
 - [How It Works](#how-it-works)
 - [Features](#features)
 - [Requirements](#requirements)
+- [Security & Secrets](#security--secrets)
 - [Installation & Configuration](#installation--configuration)
 - [Usage](#usage)
-- [Troubleshooting](#troubleshooting)
-- [Hardware](#hardware)
-- [iTach Port Information](#itach-port-information)
+- [Hardware & Resources](#hardware--resources)
 
 ## **How It Works**
 
-The script operates in a continuous loop with the following logic:
+The script operates in a continuous loop (defaulting to a 15-second check interval) with the following logic:
 
-1. **Monitor Sensor:** The script continuously polls a sensor connected to **port 2** on a primary iTach device to get its current state (0 for OFF, 1 for ON).  
-2. **Persist State:** It keeps track of the sensor's last known state in a simple text file (power\_sensor\_state.txt) to prevent sending redundant commands and to know the system's state across restarts.  
-3. **Detect Transition:** It compares the current state to the last known state from the file.  
-4. **Trigger Actions:** If a state change is detected (e.g., from OFF \-\> ON), the script performs two main actions:  
-   * **Pulse Relay:** It connects to a **separate iTach IP2CC device** to send a brief pulse to a connected relay. This is useful for devices that require a momentary contact closure.  
-   * **Send IR Commands:** It sends a pre-defined infrared (IR) "power toggle" command from two different ports (1 and 3\) on the primary iTach device.
+1. **Monitor Sensor:** Polls a contact closure/voltage sensor on **port 2** of an iTach IP2IR device.
+2. **Persist State:** Tracks the last known state in `power_sensor_state.txt` to handle restarts and prevent redundant triggers.
+3. **Detect Transition:** Compares the current sensor state to the persisted state.
+4. **Trigger Orchestration:** If a transition is detected (0 -> 1 or 1 -> 0), it triggers a sequence:
+   * **IR Commands:** Sends discrete or toggle IR codes (e.g., Ayre V-1xe and AX-7).
+   * **Relay Pulse:** Connects to an iTach IP2CC to pulse an external relay (e.g., for Mark Levinson 331).
+   * **Kasa Smart Home:** Toggles TP-Link Kasa smart switches/plugs (e.g., for rack fans or lights).
+   * **Wake-on-LAN:** Sends a magic packet to wake a configured PC.
 
 ---
 
 ## **Features**
 
-* **iTach Sensor Monitoring:** Continuously checks a contact closure port on an iTach device.  
-* **State Transition Detection:** Triggers actions only when the sensor state changes from ON-to-OFF or OFF-to-ON.  
-* **Dual-Device Control:** Orchestrates commands across two different Global Cache devices (e.g., an IP2IR and an IP2CC).  
-* **Persistent State:** Saves the last known sensor state to a local file to correctly handle script restarts.  
-* **Robust & Type-Hinted:** The code is written with modern Python features, including strict type hinting for clarity and pathlib for file path management.
-
----
-
-### **A Note on Code Quality: Strict Typing**
-
-This script is written using modern Python features, including **strict type hints**.
-
-*   **What is Strict Typing?**
-    Type hinting is a feature that allows developers to annotate variables, function arguments, and return values with their expected data types. For example, in `powerd.py`:
-    *   `HOST: str = "..."` declares that the `HOST` variable is a string.
-    *   `def get_last_sensor_state() -> str:` declares that the `get_last_sensor_state` function is expected to return a string.
-    *   `def set_sensor_state(state: str) -> None:` declares that `set_sensor_state` accepts a string argument and returns nothing (`None`).
-    *   `s: Optional[socket.socket] = None` uses the `Optional` type to indicate that the `s` variable can either be a `socket.socket` object or `None`.
-
-*   **Why is it Used in `powerd.py`?**
-    While Python is a dynamically typed language (meaning it doesn't enforce these types when the script runs), using type hints provides several major benefits:
-    1.  **Improved Readability & Clarity:** It makes the code self-documenting. Anyone reading the code can immediately understand what kind of data a function expects and what it will return.
-    2.  **Error Prevention:** It allows static analysis tools (like `mypy`) and modern code editors (like VS Code) to detect potential bugs *before* you run the script. For example, the editor can warn you if you accidentally try to pass a number to a function that expects a string.
-    3.  **Easier Maintenance:** When returning to the code months later, the type hints make it much faster and safer to understand and modify the script's logic without introducing new errors.
-
-This approach leads to more robust, reliable, and maintainable code, which is especially important for a long-running service like this power daemon.
+* **Multi-Device Orchestration:** Coordinates commands across iTach IP2IR, IP2CC, and Kasa Smart Home devices simultaneously.
+* **Security Hardened:** Uses environment variables for credentials—no passwords stored in the code.
+* **Robust Authentication:** Automatically cycles through multiple fallback passwords for Kasa devices to handle legacy or varied credentials.
+* **Persistent State:** Safely handles reboots by saving the system state to disk.
+* **Modern Python:** Fully type-hinted and follows strict documentation standards for maximum maintainability.
 
 ---
 
 ## **Requirements**
 
-* Python 3.7+  
-* Two Global Cache iTach devices accessible on your network:  
-  1. An iTach for IR control and sensor input (e.g., IP2IR).  
-  2. An iTach for relay/contact closure control (e.g., IP2CC).  
-* A sensor compatible with the iTach's sensor port.
+* **Python 3.7+**
+* **Global Cache iTach Hardware:**
+  1. IP2IR (for IR control and sensor input).
+  2. IP2CC (for relay/contact closure control).
+* **TP-Link Kasa Device:** Any Kasa-compatible smart switch or plug.
+* **Libraries:**
+  * `python-kasa` (for smart home control).
+
+---
+
+## **Security & Secrets**
+
+This script is designed for security. It **does not** store passwords in the `.py` file. Instead, it pulls them from your system's environment variables.
+
+### Setting up your Secrets (Linux/Pi)
+You can use the provided `powerd_secrets.example` file as a template. Create a hidden file in your home directory:
+```bash
+cp powerd_secrets.example ~/.powerd_secrets
+nano ~/.powerd_secrets
+```
+Add your credentials:
+```bash
+# Your Kasa account email
+export KASA_EMAIL="your_email@example.com"
+
+# Your Kasa passwords (comma-separated for multi-password fallback support)
+export KASA_PASSWORDS="password1,password2,password3"
+```
+Lock the file down:
+```bash
+chmod 600 /home/steven/.powerd_secrets
+```
 
 ---
 
 ## **Installation & Configuration**
+
 1.  **Clone the repository:**
     ```bash
-    git clone <repository_url>
-    cd <repository_directory>
+    git clone https://github.com/smichalove/iTACH_AYRE
+    cd iTACH_AYRE
     ```
-2.  **No external libraries are needed.** The script uses only standard Python libraries.
-3.  **Configure the Script:**
-    All configuration is done by editing the constants at the top of the `powerd.py` script. You must set the correct values for your environment.
+2.  **Install Dependencies:**
+    ```bash
+    # For virtual environments (Recommended)
+    pip install -r requirements.txt
 
-   * IP2CC: The IP address of your iTach IP2CC (for relay control).  
-   * HOST: The IP address of your primary iTach (for sensor and IR).  
-   * STATE\_FILE: The full path to the file where the script will store the sensor's state (e.g., Path("d:/python/power\_sensor\_state.txt")). The script will attempt to create the directory if it doesn't exist.  
-   * POWER\_TOGGLE\_COMMAND: The raw Global Cache sendir command string for your device.
+    # For global installation on modern Raspberry Pi OS:
+    pip install -r requirements.txt --break-system-packages
+    ```
+3.  **Configure Constants:**
+    Edit the top of `powerd.py` to match your local IPs and MAC addresses:
+    * `IP2CC` / `HOST`: IPs of your iTach devices.
+    * `KASA_DEVICE_IP`: IP of your smart switch.
+    * `WOL_MAC_ADDRESS`: MAC of the PC you wish to wake.
+    * `STATE_FILE` / `LOG_FILE`: These default to your home directory (`~/`) but can be customized at the top of the script.
+
+> [!IMPORTANT]
+> **Networking Tip:** This script uses hardcoded IP addresses for speed and reliability. To ensure the automation remains stable, you should configure **Static DHCP Reservations** (IP Pinning) for your iTach and Kasa devices in your router's DHCP settings so their addresses never change.
+
+### **Network Discovery Fallback**
+If you cannot pin IP addresses via DHCP and a device's IP changes, you can rediscover it by running a "ping sweep" on your local network to populate your system's ARP table:
+
+```bash
+# Example for a 192.168.8.x network
+for i in {1..254}; do (ping -c 2 -W 1 192.168.8.$i | grep "from" &); done | sort -V
+```
+After running this, use `arp -a` to find the MAC addresses and IPs of your Global Caché or TP-Link devices.
 
 ---
 
 ## **Usage**
 
-To run the script continuously, execute it from your terminal:
-
+### Manual Run (Testing)
+Before you automate the script, you should run it manually to verify the connections. **Note:** You must "source" your secrets file so the script can see your passwords:
 ```bash
-python powerd.py
+# Source the secrets and run the script
+. /home/steven/.powerd_secrets && python3 powerd.py
 ```
 
-To run it as a background process on Linux or macOS, you can use nohup:
-
+### Automation (Recommended)
+Add an `@reboot` entry to your crontab to ensure it starts after power outages:
 ```bash
-nohup python powerd.py &
+@reboot . /home/steven/.powerd_secrets && /usr/bin/python3 /home/steven/iTACH_AYRE/powerd.py >> /home/steven/logfile.txt 2>&1 &
 ```
 
-This will run the script in the background and redirect its output to a file named nohup.out.
-
----
-
-## **Troubleshooting**
-
-* **Connection Refused/Timeout:**  
-  * Verify the HOST and IP2CC IP addresses are correct in the script.  
-  * Ensure both iTach devices are powered on and connected to the network.  
-  * Check for firewall rules that might be blocking communication on port 4998\.  
-* **IR Commands Not Working:**  
-  * Confirm the POWER\_TOGGLE\_COMMAND is the correct sendir code for your device.  
-  * Ensure the iTach device's IR emitter is correctly positioned over your equipment's IR receiver.  
-* **Relay Not Pulsing:**  
-  * Double-check the IP2CC address.  
-  * Ensure your relay is wired correctly to the IP2CC's contact closure port.  
-* **Script Errors on Startup:**  
-  * Make sure the path for STATE\_FILE is valid and that the script has permission to write to that location.
+> [!NOTE]
+> **Logging Strategy:** This crontab entry uses `>> logfile.txt 2>&1` to capture all console output (stdout and stderr). While the script is designed to be quiet, this redirection acts as a critical "safety net" to capture interpreter-level crashes or tracebacks that might occur outside the script's internal error handling.
 
 ---
 
 ## **Hardware & Resources**
 
-* **Used in this Code:**  
-  * **Global Caché IP2IR iTach TCP/IP to IR Converter:** Used for sending IR commands and monitoring the sensor port.  
-  * **Global Caché IP2CC-P iTach TCP/IP to Contact Closure Converter:** Used for pulsing the external relay.  
-  * **iTACH Voltage Sensor:** A compatible sensor for detecting state changes.  
-* **Links:**  
-  * **Ayre V-1xe Manual:** [PDF Link](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf)  
-  * **Mark Levinson 331 Manual:** [PDF](./n_331.pdf)
-  * **Global Cache IR Database:** [irdb.globalcache.com](https://irdb.globalcache.com/Home/Database)  
-  * **Amazon Store:** [Global Caché](https://www.google.com/search?q=https://www.amazon.com/stores/Global%2BCach%25C3%25A9/page/9B16D5C3-4BA1-4A4E-8331-C4AF232F1FD6)
-## *Hardware Used*
-* *Global Caché IP2IR iTach TCP/IP to IR Converter*
-
-Connects Infrared Control Devices to a Wired Ethernet.
-
-https://www.amazon.com/Global-Cache-IP2IR-iTach-Wired/dp/B003BFTKUC
-
-* *Global Caché IP2CC-P iTach TCP/IP to Contact Closure Converter With Power Over Ethernet.*
-
-https://www.amazon.com/Global-Cache-Contact-Closure-IP2CC-P/dp/B002ZV8FVI
-
-* *iTACH Voltage Sensor*
-
-https://www.homecontrols.com/Global-Cache-iTach-Voltage-Sensor-Cable-GCITSP1
+* **iHelp Discovery Tool:** [Global Caché Downloads](https://www.globalcache.com/downloads) (Used to find iTach IP addresses on your network).
+* **Global Caché IP2IR iTach:** [Amazon Link](https://www.amazon.com/Global-Cache-IP2IR-iTach-Wired/dp/B003BFTKUC)
+* **Global Caché IP2CC iTach:** [Amazon Link](https://www.amazon.com/Global-Cache-Contact-Closure-IP2CC-P/dp/B002ZV8FVI)
+* **iTACH Voltage Sensor:** [HomeControls Link](https://www.homecontrols.com/Global-Cache-iTach-Voltage-Sensor-Cable-GCITSP1)
+* **Ayre V-1xe Manual:** [PDF Link](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf)
 
 # **A note about iTACH ports**
-
-* Ports are not numbered in hardware. No documentation is provided of port numbers  
-* Port 1 \- farthest from Ethernet RJ46  
-* Port 3 \- used for IR blaster adjacent to RJ45  
-* IR transmitter signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)  
-* Blaster signal [path](https://github.com/smichalove/iTACH_AYRE/blob/main/itach%20IR.png)  
-* Input IR path on [v-1x](https://www.ayre.com/wp-content/uploads/2018/06/Ayre_V1xe_Manual.pdf) found on page 7
+* Port 1 - farthest from Ethernet RJ45.
+* Port 3 - adjacent to RJ45.
+* Port 2 - used for sensor input.
